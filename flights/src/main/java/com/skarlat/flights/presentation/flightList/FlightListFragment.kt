@@ -8,10 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalAirport
 import androidx.compose.runtime.Composable
@@ -25,6 +22,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
+import com.skarlat.core.ScreenState
 import com.skarlat.core.ToolbarSettings
 import com.skarlat.core.extension.`as`
 import com.skarlat.core.util.Const
@@ -66,11 +64,23 @@ class FlightListFragment : ComposeFragment() {
         toolbarSettings.setTitle(getString(R.string.flight_screen_title))
         view.`as`<ComposeView> {
             setContent {
-                val flightsList by viewModel.flightsFlow.collectAsState(initial = emptyList())
-                FlightsList(
-                    flightsList = flightsList,
-                    onItemClicked = viewModel::onFlightItemClicked
+                val state by viewModel.screenStateFlow.collectAsState(
+                    initial = ScreenState.Loading,
+                    context = viewLifecycleOwner.lifecycle.coroutineScope.coroutineContext
                 )
+                when (state) {
+                    is ScreenState.Loading -> Box(Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    }
+                    is ScreenState.Error -> ShowMessage(message = (state as ScreenState.Error).message)
+                    is ScreenState.Success -> (state as ScreenState.Success).result.`as`<List<FlightUI>> {
+                        FlightsList(
+                            flightsList = this,
+                            onItemClicked = viewModel::onFlightItemClicked
+                        )
+                    }
+
+                }
             }
         }
         viewLifecycleOwner.lifecycle.coroutineScope.launchWhenCreated {
@@ -108,6 +118,13 @@ fun FlightsList(flightsList: List<FlightUI>, onItemClicked: (FlightUI) -> Unit =
                 onItemClicked.invoke(it)
             }
         }
+    }
+}
+
+@Composable
+fun ShowMessage(message: String) {
+    Snackbar() {
+        Text(text = message)
     }
 }
 

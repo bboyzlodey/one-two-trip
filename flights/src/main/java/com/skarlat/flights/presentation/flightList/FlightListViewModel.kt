@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skarlat.core.ScreenState
 import com.skarlat.core.util.dialog.DialogData
 import com.skarlat.flights.R
 import com.skarlat.flights.di.ComponentManager
@@ -15,14 +16,12 @@ import com.skarlat.flights.presentation.model.FlightInfo
 import com.skarlat.flights.presentation.model.FlightUI
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class FlightListViewModel : ViewModel(), DefaultLifecycleObserver {
+class FlightListViewModel : ViewModel() {
 
 
     private val context: Context get() = ComponentManager.applicationContext!!
@@ -36,20 +35,24 @@ class FlightListViewModel : ViewModel(), DefaultLifecycleObserver {
         }
     }
 
-    val flightsFlow: Flow<List<FlightUI>> get() = flightsMutableFLow
-    private val flightsMutableFLow = MutableStateFlow<List<FlightUI>>(emptyList())
-
     val dialogDataFlow: Flow<DialogData> get() = dialogDataMutableFLow
     private val dialogDataMutableFLow = MutableSharedFlow<DialogData>(extraBufferCapacity = 1)
 
     val flightInfoFlow: Flow<FlightInfo> get() = flightInfoMutableFlow
     private val flightInfoMutableFlow = MutableSharedFlow<FlightInfo>(extraBufferCapacity = 1)
 
+    val screenStateFlow: Flow<ScreenState> get() = screenStateMutableFlow
+    private val screenStateMutableFlow = MutableSharedFlow<ScreenState>(extraBufferCapacity = 1)
 
     init {
         ComponentManager.localComponent?.inject(this)
         viewModelScope.launch(Dispatchers.IO + debug) {
-            flightsMutableFLow.emit(getFlightListUseCase.getFlightList())
+            flow {
+                emit(ScreenState.Success(getFlightListUseCase.getFlightList()))
+            }
+                .onStart { screenStateMutableFlow.emit(ScreenState.Loading) }
+                .catch { screenStateMutableFlow.emit(ScreenState.Error(context.getString(R.string.error))) }
+                .collect { result -> screenStateMutableFlow.emit(result) }
         }
     }
 

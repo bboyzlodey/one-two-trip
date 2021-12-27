@@ -8,4 +8,5 @@
 	<string name="selected_flight_screen_title">Выбранный полет</string>
 	<string name="select">Выбрать</string>
 	<string name="cancelation">Отмена</string>
+	<string name="error">Ошибка</string>
 </resources>
