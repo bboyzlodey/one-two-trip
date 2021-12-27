@@ -2,9 +2,11 @@ package com.skarlat.flights.domain.converter
 
 import com.skarlat.flights.data.model.Flight
 import com.skarlat.flights.data.model.PriceFlight
+import com.skarlat.flights.di.FlightsScope
 import com.skarlat.flights.presentation.model.FlightInfo
 import javax.inject.Inject
 
+@FlightsScope
 class FlightInfoConverter @Inject constructor(
     private val fromToConverter: FromToConverter,
     private val tripCountConverter: TripCountConverter,

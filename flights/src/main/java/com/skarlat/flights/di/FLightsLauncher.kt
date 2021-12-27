@@ -5,10 +5,9 @@ import androidx.fragment.app.FragmentManager
 import com.skarlat.flights.presentation.flightList.FlightListFragment
 import com.skarlat.flights_api.FlightsLauncher
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FLightsLauncher @Inject constructor() : FlightsLauncher{
+@FlightsScope
+class FLightsLauncher @Inject constructor() : FlightsLauncher {
     override fun openFragment(fragmentManager: FragmentManager) {
     }
 

@@ -7,7 +7,7 @@ import com.skarlat.flights_api.FlightsApi
 import dagger.Component
 import javax.inject.Singleton
 
-@Singleton
+@FlightsScope
 @Component(modules = [FlightModule::class])
 interface FlightComponent: FlightsApi {
     fun inject(viewModel: FlightListViewModel)

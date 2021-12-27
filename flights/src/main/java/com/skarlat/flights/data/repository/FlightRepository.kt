@@ -4,10 +4,11 @@ import com.skarlat.flights.data.local.FlightsLocalStorage
 import com.skarlat.flights.data.model.Flight
 import com.skarlat.flights.data.model.PriceFlight
 import com.skarlat.flights.data.network.FlightService
+import com.skarlat.flights.di.FlightsScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
+@FlightsScope
 class FlightRepository @Inject constructor(
     private val service: FlightService,
     private val localStorage: FlightsLocalStorage

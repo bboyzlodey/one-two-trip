@@ -4,9 +4,11 @@ import android.content.Context
 import com.skarlat.core.R
 import com.skarlat.flights.data.model.Flight
 import com.skarlat.flights.data.model.PriceFlight
+import com.skarlat.flights.di.FlightsScope
 import com.skarlat.flights.presentation.model.FlightUI
 import javax.inject.Inject
 
+@FlightsScope
 class FlightConverter @Inject constructor(
     private val applicationContext: Context,
     private val tripCountConverter: TripCountConverter,

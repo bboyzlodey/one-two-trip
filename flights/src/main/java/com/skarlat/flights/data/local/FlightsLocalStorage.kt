@@ -1,10 +1,10 @@
 package com.skarlat.flights.data.local
 
 import com.skarlat.flights.data.model.Flight
+import com.skarlat.flights.di.FlightsScope
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@FlightsScope
 class FlightsLocalStorage @Inject constructor() {
 
     private val flightsCache = mutableListOf<Flight>()

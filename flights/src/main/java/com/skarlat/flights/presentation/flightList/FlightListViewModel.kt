@@ -2,7 +2,6 @@ package com.skarlat.flights.presentation.flightList
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skarlat.core.ScreenState
@@ -26,15 +25,6 @@ class FlightListViewModel : ViewModel() {
 
     private val context: Context get() = ComponentManager.applicationContext!!
 
-    private val debug = object : CoroutineExceptionHandler {
-        override val key: CoroutineContext.Key<*>
-            get() = CoroutineExceptionHandler.Key
-
-        override fun handleException(context: CoroutineContext, exception: Throwable) {
-            Log.e("ERROR", null, exception)
-        }
-    }
-
     val dialogDataFlow: Flow<DialogData> get() = dialogDataMutableFLow
     private val dialogDataMutableFLow = MutableSharedFlow<DialogData>(extraBufferCapacity = 1)
 
@@ -42,11 +32,12 @@ class FlightListViewModel : ViewModel() {
     private val flightInfoMutableFlow = MutableSharedFlow<FlightInfo>(extraBufferCapacity = 1)
 
     val screenStateFlow: Flow<ScreenState> get() = screenStateMutableFlow
-    private val screenStateMutableFlow = MutableSharedFlow<ScreenState>(extraBufferCapacity = 1)
+    private val screenStateMutableFlow =
+        MutableSharedFlow<ScreenState>(extraBufferCapacity = 1, replay = 1)
 
     init {
         ComponentManager.localComponent?.inject(this)
-        viewModelScope.launch(Dispatchers.IO + debug) {
+        viewModelScope.launch(Dispatchers.IO) {
             flow {
                 emit(ScreenState.Success(getFlightListUseCase.getFlightList()))
             }

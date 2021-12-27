@@ -25,6 +25,7 @@ class FlightModule(
 
     @ExperimentalSerializationApi
     @Provides
+    @FlightsScope
     fun provideFlightService(): FlightService {
         return Retrofit.Builder()
             .baseUrl("https://603e34c648171b0017b2ec55.mockapi.io/")
@@ -35,11 +36,13 @@ class FlightModule(
     }
 
     @Provides
+    @FlightsScope
     fun provideApplicationContext(): Context {
         return applicationContext
     }
 
     @Provides
+    @FlightsScope
     fun provideToolbarSettings(): ToolbarSettings {
         return toolbarSettings
     }
@@ -50,9 +53,11 @@ class FlightModule(
 interface FlightBindsModule {
 
     @Binds
+    @FlightsScope
     fun bindFlightsLauncher(impl: FLightsLauncher): FlightsLauncher
 
     @Binds
+    @FlightsScope
     fun bindFLightRepository(impl: FlightRepository): IFlightsRepository
 
 

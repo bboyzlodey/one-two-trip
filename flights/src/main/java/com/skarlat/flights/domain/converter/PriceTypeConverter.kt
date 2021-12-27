@@ -2,9 +2,11 @@ package com.skarlat.flights.domain.converter
 
 import android.content.Context
 import com.skarlat.flights.R
+import com.skarlat.flights.di.FlightsScope
 import com.skarlat.flights.domain.PriceType
 import javax.inject.Inject
 
+@FlightsScope
 class PriceTypeConverter @Inject constructor(private val applicationContext: Context) {
 
     fun toUIModel(priceType: String): String {
