@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
@@ -61,20 +60,17 @@ class FlightListFragment : ComposeFragment() {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
+    @ExperimentalMaterialApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toolbarSettings.setTitle(getString(R.string.flight_screen_title))
         view.`as`<ComposeView> {
             setContent {
                 val flightsList by viewModel.flightsFlow.collectAsState(initial = emptyList())
-                LazyColumn {
-                    items(flightsList) { item: FlightUI ->
-                        FlightItem(item = item) {
-                            viewModel.onFlightItemClicked(it)
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                }
+                FlightsList(
+                    flightsList = flightsList,
+                    onItemClicked = viewModel::onFlightItemClicked
+                )
             }
         }
         viewLifecycleOwner.lifecycle.coroutineScope.launchWhenCreated {
@@ -99,78 +95,46 @@ class FlightListFragment : ComposeFragment() {
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun FlightsList(flightsList: List<FlightUI>, onItemClicked: (FlightUI) -> Unit = {}) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .padding(bottom = 16.dp)
+    ) {
         items(flightsList) { item: FlightUI ->
             FlightItem(item = item) {
                 onItemClicked.invoke(it)
             }
-            Spacer(
-                modifier = Modifier
-                    .height(16.dp)
-                    .fillMaxWidth()
-            )
         }
     }
 }
 
-@Preview
 @Composable
-fun FlightsListPreview() {
-    FlightsList(
-        flightsList = listOf(
-            FlightUI(
-                "id",
-                amount = "от 1000 руб.",
-                tripCount = "1 пересадка",
-                from = "KZN",
-                to = "LTE"
-            ),
-            FlightUI(
-                "id1",
-                amount = "от 1300 руб.",
-                tripCount = "2 пересадки",
-                from = "KZN",
-                to = "LTE"
-            ),
-            FlightUI(
-                "id11",
-                amount = "от 1500 руб.",
-                tripCount = "3 пересадки",
-                from = "KZN",
-                to = "LTE"
-            ),
-            FlightUI(
-                "id2",
-                amount = "от 1700 руб.",
-                tripCount = "4 пересадок",
-                from = "KZN",
-                to = "LTE"
-            ),
-        )
+fun ColumnScope.FromToItem(modifier: Modifier = Modifier, from: String, to: String) {
+    Text(text = from)
+    Icon(
+        Icons.Default.LocalAirport,
+        contentDescription = null,
+        modifier = Modifier.rotate(180f)
     )
+    Text(text = to)
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun FlightItem(item: FlightUI, onItemClicked: (FlightUI) -> Unit = {}) {
-    Box(
-        Modifier
-            .background(color = Color.Gray, shape = RoundedCornerShape(16.dp))
-            .fillMaxWidth()
-            .clickable { onItemClicked(item) }
+    Card(modifier = Modifier
+        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+        .fillMaxWidth(),
+        onClick = { onItemClicked(item) }
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(top = 16.dp, start = 16.dp)
         ) {
-            Text(text = item.from)
-            Icon(
-                Icons.Default.LocalAirport,
-                contentDescription = null,
-                modifier = Modifier.rotate(180f)
-            )
-            Text(text = item.to)
+            FromToItem(from = item.from, to = item.to)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = item.tripCount,
@@ -187,10 +151,4 @@ fun FlightItem(item: FlightUI, onItemClicked: (FlightUI) -> Unit = {}) {
             Text(text = item.amount)
         }
     }
-}
-
-@Preview
-@Composable
-fun FlightItemPreview() {
-    FlightItem(FlightUI("", "2000 руб.", "1 пересадка", "MSK", "SPB"))
 }

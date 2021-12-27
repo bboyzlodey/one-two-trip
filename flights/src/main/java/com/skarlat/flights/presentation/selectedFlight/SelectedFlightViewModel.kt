@@ -26,7 +26,6 @@ class SelectedFlightViewModel : ViewModel(), DefaultLifecycleObserver {
         super.onCreate(owner)
         arguments?.get(Const.BUNDLE_DATA_KEY)?.`as`<FlightInfo> {
             viewModelScope.launch {
-                Log.d("SelectedFlightViewModel", "info: ${this@`as`}")
                 selectedFlightMutableFlow.emit(this@`as`)
             }
         }

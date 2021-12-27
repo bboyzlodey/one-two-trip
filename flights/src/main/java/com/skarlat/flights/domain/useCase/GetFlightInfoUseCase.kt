@@ -1,30 +1,24 @@
 package com.skarlat.flights.domain.useCase
 
+import com.skarlat.flights.data.model.PriceFlight
 import com.skarlat.flights.data.repository.IFlightsRepository
-import com.skarlat.flights.domain.TripType
+import com.skarlat.flights.domain.PriceType
+import com.skarlat.flights.domain.converter.FlightInfoConverter
 import com.skarlat.flights.presentation.model.FlightInfo
-import java.util.*
 import javax.inject.Inject
 
 class GetFlightInfoUseCase @Inject constructor(
     private val flightRepository: IFlightsRepository,
+    private val flightInfoConverter: FlightInfoConverter
 ) {
-    suspend fun getFlightInfo(flightId: String, tripTypeId: String): FlightInfo {
+    suspend fun getFlightInfo(flightId: String, priceId: String): FlightInfo {
         val flight = flightRepository.getFlightInfo(flightId = flightId)
-        val price = flight.prices.find { it.id == tripTypeId }
-        return FlightInfo(
-            id = UUID.randomUUID().toString(),
-            amount = "Стоимость: ${price?.amount}",
-            tripCount = "Количество пересадок: ${flight.trips.count()}",
-            from = flight.trips.firstOrNull()?.from
-                ?: "Undefined",
-            to = flight.trips.lastOrNull()?.from
-                ?: "Undefined",
-            tripType = when (TripType.fromIdentifier(price?.type!!)) {
-                TripType.BUSINESS -> "Бизнес"
-                TripType.ECONOM -> "Эконом"
-                else -> ""
-            }
+        val price = flight.prices.find { it.id == priceId }
+        return flightInfoConverter.toUIModel(
+            price = price ?: PriceFlight(
+                type = PriceType.ECONOM.identifier,
+                amount = 0
+            ), flight = flight
         )
     }
 }

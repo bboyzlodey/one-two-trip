@@ -1,12 +1,12 @@
 package com.skarlat.flights.domain
 
-enum class TripType(val identifier: String) {
+enum class PriceType(val identifier: String) {
     BUSINESS("bussiness"),
     ECONOM("economy");
 
     companion object {
-        fun fromIdentifier(identifier: String): TripType {
-            return TripType.values().find { it.identifier == identifier }
+        fun fromIdentifier(identifier: String): PriceType {
+            return PriceType.values().find { it.identifier == identifier }
                 ?: throw IllegalStateException("Unknown identifier: $identifier")
         }
     }

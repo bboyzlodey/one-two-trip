@@ -1,10 +1,12 @@
 package com.skarlat.flights.presentation.flightList
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skarlat.core.util.dialog.DialogData
+import com.skarlat.flights.R
 import com.skarlat.flights.di.ComponentManager
 import com.skarlat.flights.domain.useCase.GetFlightInfoUseCase
 import com.skarlat.flights.domain.useCase.GetFlightListUseCase
@@ -22,6 +24,9 @@ import kotlin.coroutines.CoroutineContext
 
 class FlightListViewModel : ViewModel(), DefaultLifecycleObserver {
 
+
+    private val context: Context get() = ComponentManager.applicationContext!!
+
     private val debug = object : CoroutineExceptionHandler {
         override val key: CoroutineContext.Key<*>
             get() = CoroutineExceptionHandler.Key
@@ -36,6 +41,10 @@ class FlightListViewModel : ViewModel(), DefaultLifecycleObserver {
 
     val dialogDataFlow: Flow<DialogData> get() = dialogDataMutableFLow
     private val dialogDataMutableFLow = MutableSharedFlow<DialogData>(extraBufferCapacity = 1)
+
+    val flightInfoFlow: Flow<FlightInfo> get() = flightInfoMutableFlow
+    private val flightInfoMutableFlow = MutableSharedFlow<FlightInfo>(extraBufferCapacity = 1)
+
 
     init {
         ComponentManager.localComponent?.inject(this)
@@ -62,28 +71,26 @@ class FlightListViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     private suspend fun generateDialogData(flightUI: FlightUI): DialogData {
+        val prices = getFlightPricesUseCase.getFlightPrices(flightUI)
+        selectedFlightTypeId = prices.first().uid
         return DialogData.SingleChoice(
-            positiveButtonText = "выбрать",
-            negativeButtonText = "отмена",
+            positiveButtonText = context.getString(R.string.select),
+            negativeButtonText = context.getString(R.string.cancelation),
             onPositiveButtonClicked = {
                 selectedFlightTypeId?.let { openFLight(flightUI, it) }
-                selectedFlightTypeId
             },
             onNegativeButtonClicked = { selectedFlightTypeId = null },
-            items = getFlightPricesUseCase.getFlightPrices(flightUI),
+            items = prices,
             onItemSelectedListener = { selectedFlightTypeId = it.uid }
         )
     }
-
-    val flightInfoFlow: Flow<FlightInfo> get() = flightInfoMutableFlow
-    private val flightInfoMutableFlow = MutableSharedFlow<FlightInfo>(extraBufferCapacity = 1)
 
     private fun openFLight(flightUI: FlightUI, tripType: String) {
         viewModelScope.launch {
             flightInfoMutableFlow.emit(
                 getFlightInfoUseCase.getFlightInfo(
                     flightUI.id,
-                    tripTypeId = tripType
+                    priceId = tripType
                 )
             )
         }

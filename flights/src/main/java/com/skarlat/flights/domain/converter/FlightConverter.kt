@@ -7,12 +7,16 @@ import com.skarlat.flights.data.model.PriceFlight
 import com.skarlat.flights.presentation.model.FlightUI
 import javax.inject.Inject
 
-class FlightConverter @Inject constructor(private val applicationContext: Context) {
+class FlightConverter @Inject constructor(
+    private val applicationContext: Context,
+    private val tripCountConverter: TripCountConverter,
+    private val fromToConverter: FromToConverter
+) {
 
     fun toUIModel(dataModel: Flight): FlightUI {
         val priceFrom = dataModel.prices.minWithOrNull { o1, o2 -> o1.amount.compareTo(o2.amount) }
             ?: PriceFlight(type = "economy", amount = 0)
-
+        val (from, to) = fromToConverter.toUIModel(dataModel)
         return FlightUI(
             id = dataModel.id,
             amount = applicationContext.getString(
@@ -20,14 +24,9 @@ class FlightConverter @Inject constructor(private val applicationContext: Contex
                 priceFrom.amount,
                 dataModel.currency
             ),
-            tripCount = applicationContext.getString(
-                R.string.trip_count_mask,
-                dataModel.trips.size
-            ),
-            from = dataModel.trips.firstOrNull()?.from
-                ?: applicationContext.getString(R.string.undefined),
-            to = dataModel.trips.lastOrNull()?.to
-                ?: applicationContext.getString(R.string.undefined)
+            tripCount = tripCountConverter.toUIModel(dataModel = dataModel),
+            from = from,
+            to = to
         )
     }
 

@@ -1,7 +1,6 @@
 package com.skarlat.flights.presentation.selectedFlight
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +24,7 @@ import com.skarlat.core.extension.`as`
 import com.skarlat.core.util.fragment.ComposeFragment
 import com.skarlat.flights.R
 import com.skarlat.flights.di.ComponentManager
+import com.skarlat.flights.presentation.flightList.FromToItem
 import com.skarlat.flights.presentation.model.FlightInfo
 import javax.inject.Inject
 
@@ -50,10 +50,8 @@ class SelectedFlightFragment : ComposeFragment() {
         super.onViewCreated(view, savedInstanceState)
         toolbarSettings.setTitle(getString(R.string.selected_flight_screen_title))
         view.`as`<ComposeView> {
-            Log.d("Compose View", "ComposeView")
             setContent {
                 val state by viewModel.selectedFlightFlow.collectAsState(initial = null)
-                Log.d("Compose View", "State is: $state")
                 state?.let { SelectedFlightScreen(selectedFlightUI = it) }
             }
         }
@@ -63,10 +61,12 @@ class SelectedFlightFragment : ComposeFragment() {
 @Composable
 fun SelectedFlightScreen(selectedFlightUI: FlightInfo) {
     Column(
-        modifier = Modifier.scrollable(
-            rememberScrollableState(consumeScrollDelta = { it }),
-            Orientation.Vertical
-        )
+        modifier = Modifier
+            .scrollable(
+                rememberScrollableState(consumeScrollDelta = { it }),
+                Orientation.Vertical
+            )
+            .padding(16.dp)
     ) {
         val modifier = Modifier.padding(top = 16.dp)
         TextFieldReadOnly(
@@ -80,8 +80,15 @@ fun SelectedFlightScreen(selectedFlightUI: FlightInfo) {
             modifier = modifier
         )
         Text(text = selectedFlightUI.amount, modifier = modifier)
-        Text(text = selectedFlightUI.tripType, modifier = modifier)
+        Text(text = selectedFlightUI.priceType, modifier = modifier)
         Text(text = selectedFlightUI.tripCount, modifier = modifier)
+        for (transfer in selectedFlightUI.transfers) {
+            FromToItem(
+                from = transfer.first,
+                to = transfer.second,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
     }
 }
 
