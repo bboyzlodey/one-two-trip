@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="price_type_business">Бизнес</string>
+	<string name="price_type_economy">Эконом</string>
+	<string name="from">Из</string>
+	<string name="to">Куда</string>
+	<string name="flight_screen_title">Полеты</string>
+	<string name="selected_flight_screen_title">Выбранный полет</string>
+</resources>

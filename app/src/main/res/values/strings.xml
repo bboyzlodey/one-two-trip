@@ -1,0 +1,4 @@
+<resources>
+	<string name="app_name">One Two Trip</string>
+	<string name="flights_list_button">Список перелетов</string>
+</resources>

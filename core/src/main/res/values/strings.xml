@@ -1,0 +1,5 @@
+<resources>
+	<string name="price_mask">от %d %s</string>
+	<string name="trip_count_mask">Количество пересадок: %d</string>
+	<string name="undefined">Неизвестно</string>
+</resources>
